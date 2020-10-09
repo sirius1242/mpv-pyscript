@@ -2,6 +2,7 @@
 # encoding: utf-8
 
 import os
+import sys
 import tkinter as tk
 from settings import settings
 from tkinter.filedialog import askopenfilename
@@ -51,4 +52,10 @@ socat_cmd = "socat - %s" % settings.socketfile
 if(not check()):
     os.system('systemctl --user start mpv')
     #send_command()
-init()
+if (sys.argv[1] == 'open'):
+    init()
+elif (sys.argv[1] == 'restart'):
+    os.system('systemctl --user restart mpv')
+    init()
+else:
+    os.system("echo %s | %s" % (settings.commandlist[sys.argv[1]], socat_cmd))
