@@ -1,0 +1,7 @@
+[Unit]
+Description=MPV background service
+[Service]
+ExecStart=/usr/bin/mpv -idle=yes
+Type=simple
+[Install]
+WantedBy=default.target
