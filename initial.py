@@ -7,55 +7,65 @@ import tkinter as tk
 from settings import settings
 from tkinter.filedialog import askopenfilename
 
-def send(listname, listloop, listshuffle):
-    os.system('echo loadlist %s | %s' % (listname.get(), socat_cmd))
-    if(listloop.get()):
-        os.system('echo set loop-playlist yes | %s' % socat_cmd)
-    if(listshuffle.get()):
-        os.system('echo playlist-shuffle | %s' % socat_cmd)
-    root.destroy()
+class Control:
+    def __init__(self, master=None):
+        self.root = master
+        self.listloop = tk.BooleanVar(value=True)
+        self.listshuffle = tk.BooleanVar(value=True)
+        self.listname = tk.StringVar(value=settings.defaultlist)
+        #root.mainloop()
 
-def openfile(listname):
-    options = {}
-    options['filetypes'] = settings.filetypes
-    options['initialdir'] = os.path.realpath(settings.default_dir)
-    options['title'] = "Open a file list"
-    options['parent'] = root
+    def load(self):
+        self.checkbox = tk.Checkbutton(self.root, text="playlist loop", variable=self.listloop, onvalue=True, offvalue=False)
+        self.checkbox.pack()
+        self.checkbox2 = tk.Checkbutton(self.root, text="playlist shuffle", variable=self.listshuffle, onvalue=True, offvalue=False)
+        self.checkbox2.pack()
+        self.label = tk.Label(self.root, text=self.listname.get())
+        self.label.pack()
+        self.fileselect = tk.Button(self.root, text="select", command=self.openfile())
+        self.fileselect.pack()
+        self.openbox = tk.Button(self.root, text="open", command=self.send())
+        self.openbox.pack()
+        while(True):
+            self.label['text'] = self.listname.get()
+            self.root.update()
+        #tk.mainloop()
 
-    root.withdraw()
-    listname = askopenfilename(**options)
-    return listname
+    def send(self):
+        if(self.listloop.get()):
+            os.system('echo set loop-playlist yes | %s' % socat_cmd)
+        if(self.listshuffle.get()):
+            os.system('echo playlist-shuffle | %s' % socat_cmd)
+        os.system('echo loadlist %s | %s' % (self.listname.get(), socat_cmd))
+        self.root.destroy()
 
-def init():
-    listloop = tk.BooleanVar(value=True)
-    checkbox = tk.Checkbutton(root, text="playlist loop", variable=listloop, onvalue=True, offvalue=False).pack()
-    listshuffle = tk.BooleanVar(value=True)
-    checkbox2 = tk.Checkbutton(root, text="playlist shuffle", variable=listshuffle, onvalue=True, offvalue=False).pack()
-    listname = tk.StringVar(value=settings.defaultlist)
-    label = tk.Label(root, text=listname.get()).pack()
-    fileselect = tk.Button(root, text="select", command=lambda l=listname : openfile(l)).pack()
-    tk.Button(root, text="open", command=lambda l=listname, p=listloop, s=listshuffle : send(l, p, s)).pack()
-    tk.mainloop()
+    def openfile(self):
+        self.options = {}
+        self.options['filetypes'] = settings.filetypes
+        self.options['initialdir'] = os.path.realpath(settings.default_dir)
+        self.options['title'] = "Open a file list"
+        self.options['parent'] = self.root
 
-def check():
-    stat = os.system('systemctl --no-pager --user status mpv')
-    if stat == 0:
-        return True
-    else:
-        return False
+        self.listname = askopenfilename(**self.options)
 
-def send_command():
-    root.withdraw()
+    def check(self):
+        stat = os.system('systemctl --no-pager --user status mpv > /dev/null')
+        if stat == 0:
+            return True
+        else:
+            return False
 
 root=tk.Tk()
 socat_cmd = "socat - %s" % settings.socketfile
-if(not check()):
+app = Control(master=root)
+if(not app.check()):
     os.system('systemctl --user start mpv')
     #send_command()
 if (sys.argv[1] == 'open'):
-    init()
+    app.load()
+
 elif (sys.argv[1] == 'restart'):
     os.system('systemctl --user restart mpv')
-    init()
+    app.load()
 else:
     os.system("echo %s | %s" % (settings.commandlist[sys.argv[1]], socat_cmd))
