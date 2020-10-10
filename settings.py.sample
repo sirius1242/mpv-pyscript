@@ -6,7 +6,9 @@ class settings():
     filetypes = [('LIST', '.lst')]
     socketfile = "$HOME/.config/mpv/socket"
     defaultlist = "/path/to/list/file"
-    commandlist = {"pause": "cycle-values pause yes no",
+    defaultloop = True
+    defaultshuffle = True
+    commandlist = {"play": "cycle-values pause yes no",
                    "loop": "cycle-values loop-playlist inf no",
                    "next": "playlist-next",
                    "prev": "playlist-prev",

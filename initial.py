@@ -10,8 +10,8 @@ from tkinter.filedialog import askopenfilename
 class Control:
     def __init__(self, master=None):
         self.root = master
-        self.listloop = tk.BooleanVar(value=True)
-        self.listshuffle = tk.BooleanVar(value=True)
+        self.listloop = tk.BooleanVar(value=settings.defaultloop)
+        self.listshuffle = tk.BooleanVar(value=settings.defaultshuffle)
         self.listname = tk.StringVar(value=settings.defaultlist)
         #root.mainloop()
 
@@ -22,13 +22,13 @@ class Control:
         self.checkbox2.pack()
         self.label = tk.Label(self.root, text=self.listname.get())
         self.label.pack()
-        self.fileselect = tk.Button(self.root, text="select", command=self.openfile())
+        self.fileselect = tk.Button(self.root, text="select", command=self.openfile)
         self.fileselect.pack()
-        self.openbox = tk.Button(self.root, text="open", command=self.send())
+        self.openbox = tk.Button(self.root, text="open", command=self.send)
         self.openbox.pack()
         while(True):
-            self.label['text'] = self.listname.get()
             self.root.update()
+            self.label['text'] = self.listname.get()
         #tk.mainloop()
 
     def send(self):
@@ -46,7 +46,7 @@ class Control:
         self.options['title'] = "Open a file list"
         self.options['parent'] = self.root
 
-        self.listname = askopenfilename(**self.options)
+        self.listname.set(askopenfilename(**self.options))
 
     def check(self):
         stat = os.system('systemctl --no-pager --user status mpv > /dev/null')
@@ -64,8 +64,10 @@ if(not app.check()):
 if (sys.argv[1] == 'open'):
     app.load()
 
-elif (sys.argv[1] == 'restart'):
-    os.system('systemctl --user restart mpv')
-    app.load()
+elif (sys.argv[1] == 'default'):
+    os.system('echo set loop-playlist %s | %s' % ("yes" if settings.defaultloop else "no", socat_cmd))
+    os.system('echo %s | %s' % ("playlist-shuffle" if settings.defaultshuffle else "playlist-unshuffle", socat_cmd))
+    os.system('echo loadlist %s | %s' % (settings.defaultlist, socat_cmd))
+
 else:
     os.system("echo %s | %s" % (settings.commandlist[sys.argv[1]], socat_cmd))
