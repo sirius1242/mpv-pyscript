@@ -8,10 +8,20 @@ class settings():
     defaultlist = "/path/to/list/file"
     defaultloop = True
     defaultshuffle = True
-    commandlist = {"play": "cycle-values pause yes no",
-                   "loop": "cycle-values loop-playlist inf no",
-                   "next": "playlist-next",
-                   "prev": "playlist-prev",
-                   "quit": "quit",
-                   "stop": "quit-watch-later"
-                  }
+    commandlist = {
+        "play": "cycle-values pause yes no",
+        "loop": "cycle-values loop-playlist inf no",
+        "next": "playlist-next",
+        "prev": "playlist-prev",
+        "quit": "quit",
+        "stop": "quit-watch-later"
+        "loop1": "cycle-values loop-file inf no"
+    }
+    buttonlist = {
+        "prev": "⏮",
+        "play": "⏯",
+        "quit": "⏹",
+        "next": "⏭",
+        "loop": "🔁",
+        "loop1": "🔂"
+    }
