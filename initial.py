@@ -13,13 +13,16 @@ class Control:
         self.listloop = tk.BooleanVar(value=settings.defaultloop)
         self.listshuffle = tk.BooleanVar(value=settings.defaultshuffle)
         self.listname = tk.StringVar(value=settings.defaultlist)
-        #root.mainloop()
+        self.listappend = tk.StringVar(value=settings.listappend)
+        self.root.bind("<Escape>", lambda event : self.root.destroy())
 
     def load(self):
         self.checkbox = tk.Checkbutton(self.root, text="playlist loop", variable=self.listloop, onvalue=True, offvalue=False)
         self.checkbox.pack()
         self.checkbox2 = tk.Checkbutton(self.root, text="playlist shuffle", variable=self.listshuffle, onvalue=True, offvalue=False)
         self.checkbox2.pack()
+        self.checkbox3 = tk.Checkbutton(self.root, text="playlist append", variable=self.listappend, onvalue=True, offvalue=False)
+        self.checkbox3.pack()
         self.label = tk.Label(self.root, text=self.listname.get())
         self.label.pack()
         self.fileselect = tk.Button(self.root, text="select", command=self.openfile)
@@ -30,7 +33,6 @@ class Control:
         while(True):
             self.root.update()
             self.label['text'] = self.listname.get()
-        #tk.mainloop()
 
     def cmd(self):
         self.buttons = []
@@ -45,13 +47,12 @@ class Control:
             self.buttons.append(tk.Button(row1, text=settings.buttonlist[key], command= lambda _key=key : self.sendcmd(_key)))
         for button in self.buttons:
             button.pack(side='left')
-        #for i in range(len(self.buttons)):
-            #self.buttons[i].grid(row=1, column=i+1)
-        command = tk.StringVar()
-        cmdput = tk.Entry(row2)
+        self.command = tk.StringVar()
+        cmdput = tk.Entry(row2, text=self.command)
         cmdput.pack(side='left')
+        cmdput.bind("<Return>", lambda event: self.sendcmd(cmdput.get()))
         cmdput.focus_set()
-        cmdsend = tk.Button(row2, text='send', command= lambda _cmd=cmdput.get(): self.sendcmd(_cmd))
+        cmdsend = tk.Button(row2, text='send', command= lambda : self.sendcmd(cmdput.get()))
         cmdsend.pack(side='left')
         cmdsend = tk.Button(row3, text='close', width=10, command=self.root.destroy)
         cmdsend.pack(side='left')
@@ -59,7 +60,10 @@ class Control:
         self.root.mainloop()
 
     def send(self):
-        os.system('echo loadlist %s | %s' % (self.listname.get(), socat_cmd))
+        if(self.listappend.get()):
+            os.system('echo loadlist %s append | %s' % (self.listname.get(), socat_cmd))
+        else:
+            os.system('echo loadlist %s | %s' % (self.listname.get(), socat_cmd))
         if(self.listloop.get()):
             os.system('echo set loop-playlist yes | %s' % socat_cmd)
         if(self.listshuffle.get()):
@@ -89,13 +93,14 @@ class Control:
             os.system("echo %s | %s" % (cmd, socat_cmd))
         if(cmd == "stop" or cmd == "quit"):
             self.root.destroy()
+        self.command.set("")
 
 root=tk.Tk()
 socat_cmd = "socat - %s" % settings.socketfile
 app = Control(master=root)
 if(not app.check()):
     os.system('systemctl --user start mpv')
-    #send_command()
+
 if (sys.argv[1] == 'open'):
     app.load()
 

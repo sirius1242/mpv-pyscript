@@ -6,6 +6,7 @@ class settings():
     filetypes = [('LIST', '.lst')]
     socketfile = "$HOME/.config/mpv/socket"
     defaultlist = "/path/to/list/file"
+    listappend = False
     defaultloop = True
     defaultshuffle = True
     commandlist = {
