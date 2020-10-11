@@ -14,7 +14,7 @@ class Control:
         self.listloop = tk.BooleanVar(value=settings.defaultloop)
         self.listshuffle = tk.BooleanVar(value=settings.defaultshuffle)
         self.listname = tk.StringVar(value=settings.defaultlist)
-        self.listappend = tk.StringVar(value=settings.listappend)
+        self.listappend = tk.BooleanVar(value=settings.listappend)
         self.root.bind("<Escape>", lambda event : self.root.destroy())
 
     def load(self):
@@ -61,13 +61,13 @@ class Control:
         self.root.mainloop()
 
     def send(self):
-        if(self.listappend.get() == 1):
+        if(self.listappend.get()):
             os.system('echo loadlist %s append | %s' % (self.listname.get(), socat_cmd))
         else:
             os.system('echo loadlist %s | %s' % (self.listname.get(), socat_cmd))
-        if(self.listloop.get() == 1):
+        if(self.listloop.get()):
             os.system('echo set loop-playlist yes | %s' % socat_cmd)
-        if(self.listshuffle.get() == 1):
+        if(self.listshuffle.get()):
             os.system('echo playlist-shuffle | %s' % socat_cmd)
         self.root.destroy()
 
