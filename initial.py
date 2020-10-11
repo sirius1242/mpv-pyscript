@@ -3,6 +3,7 @@
 
 import os
 import sys
+from time import sleep
 import tkinter as tk
 from settings import settings
 from tkinter.filedialog import askopenfilename
@@ -60,13 +61,13 @@ class Control:
         self.root.mainloop()
 
     def send(self):
-        if(self.listappend.get()):
+        if(self.listappend.get() == 1):
             os.system('echo loadlist %s append | %s' % (self.listname.get(), socat_cmd))
         else:
             os.system('echo loadlist %s | %s' % (self.listname.get(), socat_cmd))
-        if(self.listloop.get()):
+        if(self.listloop.get() == 1):
             os.system('echo set loop-playlist yes | %s' % socat_cmd)
-        if(self.listshuffle.get()):
+        if(self.listshuffle.get() == 1):
             os.system('echo playlist-shuffle | %s' % socat_cmd)
         self.root.destroy()
 
@@ -105,6 +106,7 @@ if (sys.argv[1] == 'open'):
     app.load()
 
 elif (sys.argv[1] == 'default'):
+    sleep(0.2)
     os.system('echo set loop-playlist %s | %s' % ("yes" if settings.defaultloop else "no", socat_cmd))
     os.system('echo %s | %s' % ("playlist-shuffle" if settings.defaultshuffle else "playlist-unshuffle", socat_cmd))
     os.system('echo loadlist %s | %s' % (settings.defaultlist, socat_cmd))
