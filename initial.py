@@ -88,13 +88,22 @@ class Control:
             return False
 
     def sendcmd(self, cmd):
-        try:
-            os.system("echo %s | %s" % (settings.commandlist[cmd], socat_cmd))
-        except KeyError:
-            os.system("echo %s | %s" % (cmd, socat_cmd))
+        sendcommand(cmd)
         if(cmd == "stop" or cmd == "quit"):
             self.root.destroy()
         self.command.set("")
+
+
+def sendcommand(cmd):
+    try:
+        command = settings.commandlist[cmd]
+        if(type(command) == list):
+            for c in command:
+                os.system("echo %s | %s" % (c, socat_cmd))
+        else:
+            os.system("echo %s | %s" % (command, socat_cmd))
+    except KeyError:
+        os.system("echo %s | %s" % (cmd, socat_cmd))
 
 root=tk.Tk()
 socat_cmd = "socat - %s" % settings.socketfile
@@ -115,12 +124,4 @@ elif (sys.argv[1] == 'cmd'):
     app.cmd()
 
 else:
-    try:
-        command = settings.commandlist[sys.argv[1]]
-        if(type(command) == list):
-            for cmd in command:
-                os.system("echo %s | %s" % (cmd, socat_cmd))
-        else:
-            os.system("echo %s | %s" % (command, socat_cmd))
-    except KeyError:
-        os.system("echo %s | %s" % (sys.argv[1], socat_cmd))
+    sendcommand(sys.argv[1])
