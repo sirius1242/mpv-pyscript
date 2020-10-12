@@ -115,4 +115,12 @@ elif (sys.argv[1] == 'cmd'):
     app.cmd()
 
 else:
-    os.system("echo %s | %s" % (settings.commandlist[sys.argv[1]], socat_cmd))
+    try:
+        command = settings.commandlist[sys.argv[1]]
+        if(type(command) == list):
+            for cmd in command:
+                os.system("echo %s | %s" % (cmd, socat_cmd))
+        else:
+            os.system("echo %s | %s" % (command, socat_cmd))
+    except KeyError:
+        os.system("echo %s | %s" % (sys.argv[1], socat_cmd))
