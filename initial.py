@@ -114,13 +114,22 @@ def sendcommand(cmd):
     if stat != 0:
         tk.messagebox.showerror(title="Error", message="Command Send Failed!");
 
+def echo_help():
+    print("Usage:\n./initial.py <command>\n\ncommand:\nhelp: print help message\nopen: open a list file\ndefault: load default config\ncmd: open sending command interface\nAdd key-value pair to commandlist in settings.py to add custom commands.")
+
 root=tk.Tk()
 socat_cmd = "socat - %s" % settings.socketfile
 app = Control(master=root)
 if(not app.check()):
     os.system('systemctl --user start mpv')
 
-if (sys.argv[1] == 'open'):
+if (len(sys.argv) < 2):
+    echo_help()
+
+elif (sys.argv[1] == 'help'):
+    echo_help()
+
+elif (sys.argv[1] == 'open'):
     app.load()
 
 elif (sys.argv[1] == 'default'):
