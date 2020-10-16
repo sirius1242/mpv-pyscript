@@ -5,6 +5,7 @@ import os
 import sys
 from time import sleep
 import tkinter as tk
+import tkinter.messagebox
 from settings import settings
 from tkinter.filedialog import askopenfilename
 
@@ -62,13 +63,17 @@ class Control:
 
     def send(self):
         if(self.listappend.get()):
-            os.system('echo loadlist %s append | %s' % (self.listname.get(), socat_cmd))
+            s_fileopen = os.system('echo loadlist %s append | %s' % (self.listname.get(), socat_cmd))
         else:
-            os.system('echo loadlist %s | %s' % (self.listname.get(), socat_cmd))
+            s_fileopen = os.system('echo loadlist %s | %s' % (self.listname.get(), socat_cmd))
         if(self.listloop.get()):
-            os.system('echo set loop-playlist yes | %s' % socat_cmd)
+            s_loop = os.system('echo set loop-playlist yes | %s' % socat_cmd)
         if(self.listshuffle.get()):
-            os.system('echo playlist-shuffle | %s' % socat_cmd)
+            s_shuffle = os.system('echo playlist-shuffle | %s' % socat_cmd)
+
+        if s_fileopen + s_loop + s_shuffle != 0:
+            tk.messagebox.showerror(title="Error", message="Command Send Failed!");
+
         self.root.destroy()
 
     def openfile(self):
@@ -99,11 +104,14 @@ def sendcommand(cmd):
         command = settings.commandlist[cmd]
         if(type(command) == list):
             for c in command:
-                os.system("echo %s | %s" % (c, socat_cmd))
+                stat = os.system("echo %s | %s" % (c, socat_cmd))
         else:
-            os.system("echo %s | %s" % (command, socat_cmd))
+            stat = os.system("echo %s | %s" % (command, socat_cmd))
     except KeyError:
-        os.system("echo %s | %s" % (cmd, socat_cmd))
+        stat = os.system("echo %s | %s" % (cmd, socat_cmd))
+
+    if stat != 0:
+        tk.messagebox.showerror(title="Error", message="Command Send Failed!");
 
 root=tk.Tk()
 socat_cmd = "socat - %s" % settings.socketfile
@@ -115,10 +123,12 @@ if (sys.argv[1] == 'open'):
     app.load()
 
 elif (sys.argv[1] == 'default'):
-    sleep(0.2)
-    os.system('echo set loop-playlist %s | %s' % ("yes" if settings.defaultloop else "no", socat_cmd))
-    os.system('echo %s | %s' % ("playlist-shuffle" if settings.defaultshuffle else "playlist-unshuffle", socat_cmd))
-    os.system('echo loadlist %s | %s' % (settings.defaultlist, socat_cmd))
+    #sleep(0.2)
+    s_loop = os.system('echo set loop-playlist %s | %s' % ("yes" if settings.defaultloop else "no", socat_cmd))
+    s_shuffle = os.system('echo %s | %s' % ("playlist-shuffle" if settings.defaultshuffle else "playlist-unshuffle", socat_cmd))
+    s_fileopen = os.system('echo loadlist %s | %s' % (settings.defaultlist, socat_cmd))
+    if s_fileopen + s_loop + s_shuffle != 0:
+        tk.messagebox.showerror(title="Error", message="Command Send Failed!");
 
 elif (sys.argv[1] == 'cmd'):
     app.cmd()
