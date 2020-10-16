@@ -32,6 +32,7 @@ class Control:
         self.openbox = tk.Button(self.root, text="open", command=self.send)
         self.openbox.pack()
         self.root.title("Load a playlist")
+        self.root.bind("<Return>", lambda event : self.send())
         while(True):
             self.root.update()
             self.label['text'] = self.listname.get()
