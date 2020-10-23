@@ -10,6 +10,7 @@ class settings():
     defaultloop = True
     defaultshuffle = True
     commandlist = {
+        "default": [],
         "play": "cycle-values pause yes no",
         "loop": "cycle-values loop-playlist inf no",
         "next": "playlist-next",

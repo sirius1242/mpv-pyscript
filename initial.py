@@ -64,16 +64,14 @@ class Control:
 
     def send(self):
         if(self.listappend.get()):
-            s_fileopen = os.system('echo loadlist %s append | %s' % (self.listname.get(), socat_cmd))
+            sendcommand("loadlist %s append" % self.listname.get())
         else:
-            s_fileopen = os.system('echo loadlist %s | %s' % (self.listname.get(), socat_cmd))
+            sendcommand("loadlist %s" % self.listname.get())
         if(self.listloop.get()):
-            s_loop = os.system('echo set loop-playlist yes | %s' % socat_cmd)
+            sendcommand("set loop-playlist yes")
         if(self.listshuffle.get()):
-            s_shuffle = os.system('echo playlist-shuffle | %s' % socat_cmd)
-
-        if s_fileopen + s_loop + s_shuffle != 0:
-            tk.messagebox.showerror(title="Error", message="Command Send Failed!");
+            sendcommand("playlist-shuffle")
+        sendcommand("default")
 
         self.root.destroy()
 
@@ -112,7 +110,7 @@ def sendcommand(cmd):
         stat = os.system("echo %s | %s" % (cmd, socat_cmd))
 
     if stat != 0:
-        tk.messagebox.showerror(title="Error", message="Command Send Failed!");
+        tk.messagebox.showerror(title="Error", message="Command Send Failed!")
 
 def echo_help():
     print("Usage:\n./initial.py <command>\n\ncommand:\nhelp: print help message\nopen: open a list file\ndefault: load default config\ncmd: open sending command interface\nAdd key-value pair to commandlist in settings.py to add custom commands.")
@@ -133,12 +131,11 @@ elif (sys.argv[1] == 'open'):
     app.load()
 
 elif (sys.argv[1] == 'default'):
-    #sleep(0.2)
-    s_loop = os.system('echo set loop-playlist %s | %s' % ("yes" if settings.defaultloop else "no", socat_cmd))
-    s_shuffle = os.system('echo %s | %s' % ("playlist-shuffle" if settings.defaultshuffle else "playlist-unshuffle", socat_cmd))
-    s_fileopen = os.system('echo loadlist %s | %s' % (settings.defaultlist, socat_cmd))
-    if s_fileopen + s_loop + s_shuffle != 0:
-        tk.messagebox.showerror(title="Error", message="Command Send Failed!");
+    sleep(0.2)
+    sendcommand("set loop-playlist %s" % "yes" if settings.defaultloop else "no")
+    sendcommand("%s" % "playlist-shuffle" if settings.defaultshuffle else "playlist-unshuffle")
+    sendcommand("loadlist %s" % settings.defaultlist)
+    sendcommand("default")
 
 elif (sys.argv[1] == 'cmd'):
     app.cmd()
